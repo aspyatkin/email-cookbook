@@ -53,14 +53,21 @@ end
 #   end
 # end
 
+tls_certificate node[id]['hostname'] do
+  action :deploy
+end
+
 template "#{node[id]['postfix']['config']['root']}/main.cf" do
+  ::Chef::Resource::Template.send(:include, ::ChefCookbook::TLS::Helper)
   source 'postfix/main.cf.erb'
   mode 0644
   owner node[id]['postfix']['config']['owner']
   group node[id]['postfix']['config']['group']
   variables(
     myhostname: node[id]['hostname'],
-    mydomain: node[id]['domain']
+    mydomain: node[id]['domain'],
+    smtpd_tls_cert_file: tls_certificate_path(node[id]['hostname']),
+    smtpd_tls_key_file: tls_certificate_private_key_path(node[id]['hostname'])
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed

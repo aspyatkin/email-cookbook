@@ -16,6 +16,10 @@ service 'dovecot' do
   action [:enable, :start]
 end
 
+tls_certificate node[id]['hostname'] do
+  action :deploy
+end
+
 template "#{node[id]['dovecot']['config']['root']}/dovecot.conf" do
   source 'dovecot/dovecot.conf.erb'
   mode 0644
@@ -81,6 +85,20 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-master.conf" do
     vmail_user: node[id]['vmail']['user'],
     postfix_user: node[id]['postfix']['service']['user'],
     postfix_group: node[id]['postfix']['service']['group']
+  )
+  action :create
+  notifies :reload, 'service[dovecot]', :delayed
+end
+
+template "#{node[id]['dovecot']['config']['root']}/conf.d/10-ssl.conf" do
+  ::Chef::Resource::Template.send(:include, ::ChefCookbook::TLS::Helper)
+  source 'dovecot/10-ssl.conf.erb'
+  mode 0644
+  owner node[id]['dovecot']['config']['owner']
+  group node[id]['dovecot']['config']['group']
+  variables(
+    ssl_cert: tls_certificate_path(node[id]['hostname']),
+    ssl_key: tls_certificate_private_key_path(node[id]['hostname'])
   )
   action :create
   notifies :reload, 'service[dovecot]', :delayed

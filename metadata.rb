@@ -15,5 +15,6 @@ depends 'ark', '~> 1.1.0'
 
 depends 'latest-git', '~> 1.1.9'
 depends 'modern_nginx', '~> 1.2.7'
+depends 'tls', '~> 1.0.0'
 
 supports 'ubuntu'

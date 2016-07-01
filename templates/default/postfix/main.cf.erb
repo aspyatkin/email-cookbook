@@ -48,8 +48,8 @@ smtpd_helo_required = yes
 smtpd_recipient_restrictions = reject_unknown_recipient_domain, permit_mynetworks, reject_non_fqdn_recipient, reject_unauth_destination, reject_unverified_recipient, permit
 smtpd_sasl_path = private/auth
 smtpd_sasl_type = dovecot
-smtpd_tls_cert_file = /etc/dovecot/dovecot.pem
-smtpd_tls_key_file = /etc/dovecot/private/dovecot.pem
+smtpd_tls_cert_file = <%= @smtpd_tls_cert_file %>
+smtpd_tls_key_file = <%= @smtpd_tls_key_file %>
 smtpd_tls_security_level = may
 strict_rfc821_envelopes = yes
 unknown_local_recipient_reject_code = 550
