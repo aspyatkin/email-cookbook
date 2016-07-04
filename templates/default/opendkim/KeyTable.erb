@@ -1,0 +1,3 @@
+<% @domains.each do |domain| %>
+<%= @selector %>.<%= @domainkey %>.<%= domain %> <%= domain %>:<%= @selector %>:<%= @key_basedir %>/<%= domain %>/<%= @selector %>.private
+<% end %>

@@ -64,3 +64,14 @@ default[id]['dovecot']['config']['root'] = '/etc/dovecot'
 default[id]['dovecot']['config']['owner'] = 'root'
 default[id]['dovecot']['config']['group'] = 'root'
 default[id]['dovecot']['config']['db_file'] = 'users'
+
+default[id]['opendkim']['config']['root'] = '/etc/opendkim'
+default[id]['opendkim']['config']['owner'] = 'root'
+default[id]['opendkim']['config']['group'] = 'root'
+default[id]['opendkim']['service']['user'] = 'opendkim'
+default[id]['opendkim']['service']['group'] = 'opendkim'
+default[id]['opendkim']['service']['host'] = '127.0.0.1'
+default[id]['opendkim']['service']['port'] = 8891
+
+default[id]['opendkim']['selector'] = 'default'
+default[id]['opendkim']['domainkey'] = '_domainkey'

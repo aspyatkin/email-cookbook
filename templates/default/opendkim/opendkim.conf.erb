@@ -1,0 +1,18 @@
+Syslog yes
+UMask 002
+OversignHeaders From
+AutoRestart yes
+AutoRestartRate 10/1h
+Canonicalization relaxed/simple
+ExternalIgnoreList refile:<%= @trusted_hosts_file %>
+InternalHosts refile:<%= @trusted_hosts_file %>
+KeyTable refile:<%= @key_table_file %>
+LogWhy Yes
+Mode sv
+PidFile /var/run/opendkim/opendkim.pid
+SignatureAlgorithm rsa-sha256
+SigningTable refile:<%= @signing_table_file %>
+Socket inet:<%= @port %>@<%= @host %>
+SyslogSuccess Yes
+TemporaryDirectory /var/tmp
+UserID <%= @user %>:<%= @group %>

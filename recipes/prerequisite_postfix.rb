@@ -67,7 +67,9 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
     myhostname: node[id]['hostname'],
     mydomain: node[id]['domain'],
     smtpd_tls_cert_file: tls_certificate_path(node[id]['hostname']),
-    smtpd_tls_key_file: tls_certificate_private_key_path(node[id]['hostname'])
+    smtpd_tls_key_file: tls_certificate_private_key_path(node[id]['hostname']),
+    opendkim_host: node[id]['opendkim']['service']['host'],
+    opendkim_port: node[id]['opendkim']['service']['port']
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed

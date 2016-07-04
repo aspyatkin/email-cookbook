@@ -8,5 +8,6 @@ id = 'email'
 include_recipe 'tls::default'
 
 include_recipe "#{id}::prerequisite_vmail"
+include_recipe "#{id}::prerequisite_opendkim"
 include_recipe "#{id}::prerequisite_postfix"
 include_recipe "#{id}::prerequisite_dovecot"
