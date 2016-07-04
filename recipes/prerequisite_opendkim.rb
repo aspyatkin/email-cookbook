@@ -63,7 +63,8 @@ node[id]['sending_domains'].each do |sending_domain|
     action :create
   end
 
-  private_key_file = ::File.join key_domain_basedir, "#{sending_domain}.private"
+  private_key_file = ::File.join key_domain_basedir, "#{node[id]['opendkim']['selector']}.private"
+  public_key_file = ::File.join key_domain_basedir, "#{node[id]['opendkim']['selector']}.txt"
 
   execute "Generate DKIM key for #{sending_domain}" do
     command "opendkim-genkey --bits 1024 --directory #{key_domain_basedir} --domain "\
@@ -71,9 +72,13 @@ node[id]['sending_domains'].each do |sending_domain|
             "#{node[id]['opendkim']['selector']}"
     user node[id]['opendkim']['service']['user']
     group node[id]['opendkim']['service']['group']
+    not_if do
+      ::File.exist?(private_key_file) && ::File.exist?(public_key_file)
+    end
     creates private_key_file
     umask 002
     action :run
+    notifies :reload, 'service[opendkim]', :delayed
   end
 end
 
