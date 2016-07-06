@@ -179,48 +179,6 @@ template db_virtual_alias_domain_mailbox_maps_file do
   notifies :reload, 'service[postfix]', :delayed
 end
 
-db_virtual_mailbox_limit_maps_file = ::File.join(
-  postfix_maps_basedir,
-  'virtual_mailbox_limit_maps.cf'
-)
-
-template db_virtual_mailbox_limit_maps_file do
-  source 'postfix/db_virtual_mailbox_limit_maps.cf.erb'
-  mode 0644
-  owner node[id]['postfix']['config']['owner']
-  group node[id]['postfix']['config']['group']
-  variables(
-    user: node[id]['postfix']['database']['user'],
-    password: helper.postgres_user_password(
-      node[id]['postfix']['database']['user']
-    ),
-    host: node[id]['postgres']['host'],
-    port: node[id]['postgres']['port'],
-    dbname: node[id]['postfixadmin']['database']['name']
-  )
-  action :create
-  notifies :reload, 'service[postfix]', :delayed
-end
-
-# node[id]['postfix']['map_files']['list'].each do |map_file|
-#   template "#{node[id]['postfix']['map_files']['path']}/#{map_file}" do
-#     source "postfix-pgsql/#{map_file}.erb"
-#     mode 0644
-#     owner node[id]['postfix']['map_files']['owner']
-#     group node[id]['postfix']['map_files']['group']
-#     variables(
-#       user: node[id]['postfix']['database']['user'],
-#       password: data_bag_item('postgres', node.chef_environment)[
-#         'credentials'][node[id]['postfix']['database']['user']],
-#       host: node[id]['postgres']['listen']['address'],
-#       port: node[id]['postgres']['listen']['port'],
-#       dbname: node[id]['postfixadmin']['database']['name']
-#     )
-#     action :create
-#     notifies :reload, 'service[postfix]', :delayed
-#   end
-# end
-
 tls_certificate node[id]['hostname'] do
   action :deploy
 end
@@ -246,8 +204,7 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
       db_virtual_alias_domain_catchall_maps_file,
     virtual_mailbox_maps_file: db_virtual_mailbox_maps_file,
     virtual_alias_domain_mailbox_maps_file: \
-      db_virtual_alias_domain_mailbox_maps_file,
-    virtual_mailbox_limit_maps_file: db_virtual_mailbox_limit_maps_file
+      db_virtual_alias_domain_mailbox_maps_file
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed
