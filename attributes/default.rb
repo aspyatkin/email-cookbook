@@ -51,14 +51,14 @@ default[id]['postfix']['config']['group'] = 'root'
 default[id]['postfix']['service']['user'] = 'postfix'
 default[id]['postfix']['service']['group'] = 'postfix'
 
-default[id]['postfix']['database']['user'] = 'postfixadmin'
+default[id]['postfix']['database']['user'] = 'postfix'
 
 default[id]['dovecot']['config']['root'] = '/etc/dovecot'
 default[id]['dovecot']['config']['owner'] = 'root'
 default[id]['dovecot']['config']['group'] = 'root'
 default[id]['dovecot']['config']['db_file'] = 'users'
 
-default[id]['dovecot']['database']['user'] = 'postfixadmin'
+default[id]['dovecot']['database']['user'] = 'dovecot'
 
 default[id]['opendkim']['config']['root'] = '/etc/opendkim'
 default[id]['opendkim']['config']['owner'] = 'root'

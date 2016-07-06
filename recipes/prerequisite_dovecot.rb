@@ -22,15 +22,29 @@ end
 
 helper = ChefCookbook::Email.new node
 
-# postgresql_database_user node[id]['dovecot']['database']['user'] do
-#   connection helper.postgres_connection_info
-#   database_name node[id]['postfixadmin']['database']['name']
-#   password helper.postgres_user_password(
-#     node[id]['dovecot']['database']['user']
-#   )
-#   privileges [:all]
-#   action [:create, :grant]
-# end
+postgresql_database_user 'Create Dovecot database user' do
+  username node[id]['dovecot']['database']['user']
+  connection helper.postgres_connection_info
+  password helper.postgres_user_password(
+    node[id]['dovecot']['database']['user']
+  )
+  action :create
+end
+
+%w(
+  mailbox
+).each do |table_name|
+  postgresql_database 'Grant privileges to Dovecot database user on '\
+                      "#{table_name} table" do
+    connection helper.postgres_connection_info
+    database_name node[id]['postfixadmin']['database']['name']
+    sql %(
+      GRANT SELECT ON "#{table_name}"
+      TO "#{node[id]['dovecot']['database']['user']}"
+    )
+    action :query
+  end
+end
 
 template "#{node[id]['dovecot']['config']['root']}/dovecot.conf" do
   source 'dovecot/dovecot.conf.erb'

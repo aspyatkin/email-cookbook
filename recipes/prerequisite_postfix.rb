@@ -31,15 +31,32 @@ end
 
 helper = ChefCookbook::Email.new node
 
-# postgresql_database_user node[id]['postfix']['database']['user'] do
-#   connection helper.postgres_connection_info
-#   database_name node[id]['postfixadmin']['database']['name']
-#   password helper.postgres_user_password(
-#     node[id]['postfix']['database']['user']
-#   )
-#   privileges [:all]
-#   action [:create, :grant]
-# end
+postgresql_database_user 'Create Postfix database user' do
+  username node[id]['postfix']['database']['user']
+  connection helper.postgres_connection_info
+  password helper.postgres_user_password(
+    node[id]['postfix']['database']['user']
+  )
+  action :create
+end
+
+%w(
+  domain
+  alias_domain
+  alias
+  mailbox
+).each do |table_name|
+  postgresql_database 'Grant privileges to Postfix database user on '\
+                      "#{table_name} table" do
+    connection helper.postgres_connection_info
+    database_name node[id]['postfixadmin']['database']['name']
+    sql %(
+      GRANT SELECT ON "#{table_name}"
+      TO "#{node[id]['postfix']['database']['user']}"
+    )
+    action :query
+  end
+end
 
 db_virtual_domains_maps_file = ::File.join(
   postfix_maps_basedir,
