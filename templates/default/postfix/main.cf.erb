@@ -27,12 +27,12 @@ alias_database = hash:/etc/aliases
 myorigin = $myhostname
 mydestination = $myhostname, localhost.$mydomain, localhost
 relayhost = 
-mynetworks = 127.0.0.1/32 [::1]/128
+mynetworks = 127.0.0.1/32
 mynetworks_style = host
 mailbox_size_limit = 409600000
 recipient_delimiter = +
 inet_interfaces = all
-inet_protocols = all
+inet_protocols = ipv4
 
 disable_vrfy_command = yes
 
