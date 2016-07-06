@@ -58,12 +58,25 @@ virtual_transport = lmtp:unix:private/dovecot-lmtp
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
 
-virtual_mailbox_domains = $mydomain
-virtual_mailbox_maps = hash:/etc/postfix/vmailbox
-#virtual_alias_domains =
-#virtual_alias_maps = hash:/etc/postfix/virtual
-
 milter_default_action = accept
 milter_protocol = 6
 smtpd_milters = inet:<%= @opendkim_host %>:<%= @opendkim_port %>
 non_smtpd_milters = inet:<%= @opendkim_host %>:<%= @opendkim_port %>
+
+virtual_mailbox_domains = proxy:pgsql:<%= @virtual_domains_maps_file %>
+
+virtual_alias_maps =
+  proxy:pgsql:<%= @virtual_alias_maps_file %>,
+  proxy:pgsql:<%= @virtual_alias_domain_maps_file %>,
+  proxy:pgsql:<%= @virtual_alias_domain_catchall_maps_file %>
+
+virtual_mailbox_maps =
+  proxy:pgsql:<%= @virtual_mailbox_maps_file %>,
+  proxy:pgsql:<%= @virtual_alias_domain_mailbox_maps_file %>
+
+virtual_create_maildirsize = yes
+virtual_mailbox_extended = yes
+virtual_mailbox_limit_maps = proxy:pgsql:<%= @virtual_mailbox_limit_maps_file %>
+virtual_mailbox_limit_override = yes
+virtual_maildir_limit_message = Sorry, the user's maildir has overdrawn his diskspace quota, please try again later.
+virtual_overquota_bounce = yes

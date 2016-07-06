@@ -1,20 +1,44 @@
-module Email
-  module Helper
-    def postgres_root_username
+module ChefCookbook
+  class Email
+    def initialize(node)
+      @node = node
+    end
+
+    def self.postgres_root_username
       'postgres'
     end
 
-    module_function :postgres_root_username
+    def postgres_user_password(username)
+      ::Chef::EncryptedDataBagItem.load(
+        'postgres',
+        @node.chef_environment
+      )['credentials'].fetch(username, nil)
+    end
 
     def postgres_connection_info
       id = 'email'
+      root_username = self.class.postgres_root_username
 
       {
-        host: node[id]['postgres']['listen']['address'],
-        port: node[id]['postgres']['listen']['port'],
-        username: postgres_root_username,
-        password: data_bag_item('postgres', node.chef_environment)['credentials'][postgres_root_username]
+        host: @node[id]['postgres']['host'],
+        port: @node[id]['postgres']['port'],
+        username: root_username,
+        password: postgres_user_password(root_username)
       }
+    end
+
+    def postfixadmin_setup_password
+      require 'digest/sha1'
+      salt = ::Chef::EncryptedDataBagItem.load(
+        'postfixadmin',
+        @node.chef_environment
+      )['admin_credentials']['salt']
+      password = ::Chef::EncryptedDataBagItem.load(
+        'postfixadmin',
+        @node.chef_environment
+      )['admin_credentials']['password']
+
+      "#{salt}:#{::Digest::SHA1.hexdigest("#{salt}:#{password}")}"
     end
   end
 end

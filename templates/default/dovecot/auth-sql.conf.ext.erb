@@ -1,0 +1,13 @@
+# Authentication for SQL users. Included from 10-auth.conf.
+#
+# <doc/wiki/AuthDatabase.SQL.txt>
+
+passdb {
+  driver = sql
+  args = <%= @sql_conf_file %>
+}
+
+userdb {
+  driver = sql
+  args = <%= @sql_conf_file %>
+}

@@ -16,23 +16,191 @@ service 'postfix' do
   action [:enable, :start]
 end
 
-# directory node[id]['postfix']['map_files']['path'] do
-#   mode 0755
-#   owner node[id]['postfix']['map_files']['owner']
-#   group node[id]['postfix']['map_files']['group']
-#   recursive true
-#   action :create
+postfix_maps_basedir = ::File.join(
+  node[id]['postfix']['config']['root'],
+  'postgres'
+)
+
+directory postfix_maps_basedir do
+  mode 0755
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  recursive true
+  action :create
+end
+
+helper = ChefCookbook::Email.new node
+
+# postgresql_database_user node[id]['postfix']['database']['user'] do
+#   connection helper.postgres_connection_info
+#   database_name node[id]['postfixadmin']['database']['name']
+#   password helper.postgres_user_password(
+#     node[id]['postfix']['database']['user']
+#   )
+#   privileges [:all]
+#   action [:create, :grant]
 # end
 
-# postgresql_database_user node[id]['postfix']['database']['user']  do
-#   Chef::Resource::PostgresqlDatabaseUser.send :include, Email::Helper
-#   connection postgres_connection_info
-#   database_name node[id]['postfixadmin']['database']['name']
-#   password data_bag_item('postgres', node.chef_environment)[
-#     'credentials'][node[id]['postfix']['database']['user']]
-#   privileges [:all]
-#   action :create
-# end
+db_virtual_domains_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_domains_maps.cf'
+)
+
+template db_virtual_domains_maps_file do
+  source 'postfix/db_virtual_domains_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_alias_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_alias_maps.cf'
+)
+
+template db_virtual_alias_maps_file do
+  source 'postfix/db_virtual_alias_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_alias_domain_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_alias_domain_maps.cf'
+)
+
+template db_virtual_alias_domain_maps_file do
+  source 'postfix/db_virtual_alias_domain_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_alias_domain_catchall_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_alias_domain_catchall_maps.cf'
+)
+
+template db_virtual_alias_domain_catchall_maps_file do
+  source 'postfix/db_virtual_alias_domain_catchall_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_mailbox_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_mailbox_maps.cf'
+)
+
+template db_virtual_mailbox_maps_file do
+  source 'postfix/db_virtual_mailbox_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_alias_domain_mailbox_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_alias_domain_mailbox_maps.cf'
+)
+
+template db_virtual_alias_domain_mailbox_maps_file do
+  source 'postfix/db_virtual_alias_domain_mailbox_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
+
+db_virtual_mailbox_limit_maps_file = ::File.join(
+  postfix_maps_basedir,
+  'virtual_mailbox_limit_maps.cf'
+)
+
+template db_virtual_mailbox_limit_maps_file do
+  source 'postfix/db_virtual_mailbox_limit_maps.cf.erb'
+  mode 0644
+  owner node[id]['postfix']['config']['owner']
+  group node[id]['postfix']['config']['group']
+  variables(
+    user: node[id]['postfix']['database']['user'],
+    password: helper.postgres_user_password(
+      node[id]['postfix']['database']['user']
+    ),
+    host: node[id]['postgres']['host'],
+    port: node[id]['postgres']['port'],
+    dbname: node[id]['postfixadmin']['database']['name']
+  )
+  action :create
+  notifies :reload, 'service[postfix]', :delayed
+end
 
 # node[id]['postfix']['map_files']['list'].each do |map_file|
 #   template "#{node[id]['postfix']['map_files']['path']}/#{map_file}" do
@@ -57,8 +225,9 @@ tls_certificate node[id]['hostname'] do
   action :deploy
 end
 
+tls_item = ::ChefCookbook::TLS.new(node).certificate_entry node[id]['hostname']
+
 template "#{node[id]['postfix']['config']['root']}/main.cf" do
-  ::Chef::Resource::Template.send(:include, ::ChefCookbook::TLS::Helper)
   source 'postfix/main.cf.erb'
   mode 0644
   owner node[id]['postfix']['config']['owner']
@@ -66,10 +235,19 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
   variables(
     myhostname: node[id]['hostname'],
     mydomain: node[id]['domain'],
-    smtpd_tls_cert_file: tls_certificate_path(node[id]['hostname']),
-    smtpd_tls_key_file: tls_certificate_private_key_path(node[id]['hostname']),
+    smtpd_tls_cert_file: tls_item.certificate_path,
+    smtpd_tls_key_file: tls_item.certificate_private_key_path,
     opendkim_host: node[id]['opendkim']['service']['host'],
-    opendkim_port: node[id]['opendkim']['service']['port']
+    opendkim_port: node[id]['opendkim']['service']['port'],
+    virtual_domains_maps_file: db_virtual_domains_maps_file,
+    virtual_alias_maps_file: db_virtual_alias_maps_file,
+    virtual_alias_domain_maps_file: db_virtual_alias_domain_maps_file,
+    virtual_alias_domain_catchall_maps_file: \
+      db_virtual_alias_domain_catchall_maps_file,
+    virtual_mailbox_maps_file: db_virtual_mailbox_maps_file,
+    virtual_alias_domain_mailbox_maps_file: \
+      db_virtual_alias_domain_mailbox_maps_file,
+    virtual_mailbox_limit_maps_file: db_virtual_mailbox_limit_maps_file
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed
@@ -91,42 +269,6 @@ end
 
 execute 'Configure aliases' do
   command 'newaliases'
-  action :run
-  notifies :reload, 'service[postfix]', :delayed
-end
-
-template "#{node[id]['postfix']['config']['root']}/vmailbox" do
-  source 'postfix/virtual_mailboxes.erb'
-  mode 0644
-  owner node[id]['postfix']['config']['user']
-  group node[id]['postfix']['config']['group']
-  variables(
-    virtual_mailboxes: node[id]['virtual_mailboxes']
-  )
-  action :create
-  notifies :reload, 'service[postfix]', :delayed
-end
-
-execute 'Configure virtual mailboxes' do
-  command "postmap #{node[id]['postfix']['config']['root']}/vmailbox"
-  action :run
-  notifies :reload, 'service[postfix]', :delayed
-end
-
-template "#{node[id]['postfix']['config']['root']}/virtual" do
-  source 'postfix/virtual_aliases.erb'
-  mode 0644
-  owner node[id]['postfix']['config']['user']
-  group node[id]['postfix']['config']['group']
-  variables(
-    virtual_aliases: node[id]['virtual_aliases']
-  )
-  action :create
-  notifies :reload, 'service[postfix]', :delayed
-end
-
-execute 'Configure virtual aliases' do
-  command "postmap #{node[id]['postfix']['config']['root']}/virtual"
   action :run
   notifies :reload, 'service[postfix]', :delayed
 end

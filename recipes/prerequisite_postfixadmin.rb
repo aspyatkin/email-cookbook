@@ -23,81 +23,108 @@ ark 'postfixadmin' do
   action :install
 end
 
+helper = ChefCookbook::Email.new node
+
 postgresql_database node[id]['postfixadmin']['database']['name'] do
-  Chef::Resource::PostgresqlDatabase.send :include, Email::Helper
-  connection postgres_connection_info
+  connection helper.postgres_connection_info
   action :create
 end
 
 postgresql_database_user node[id]['postfixadmin']['database']['user'] do
-  Chef::Resource::PostgresqlDatabaseUser.send :include, Email::Helper
-  connection postgres_connection_info
+  connection helper.postgres_connection_info
   database_name node[id]['postfixadmin']['database']['name']
-  password data_bag_item('postgres', node.chef_environment)[
-    'credentials'][node[id]['postfixadmin']['database']['user']]
+  password helper.postgres_user_password(
+    node[id]['postfixadmin']['database']['user']
+  )
   privileges [:all]
   action [:create, :grant]
 end
 
 php_fpm_pool 'postfixadmin' do
-  listen node[id]['postfixadmin']['listen_sock']
+  listen node[id]['postfixadmin']['service']['listen_sock']
   user node[id]['postfixadmin']['user']
   group node[id]['postfixadmin']['group']
   process_manager 'dynamic'
-  max_children node[id]['postfixadmin']['pool']['max_children']
-  start_servers node[id]['postfixadmin']['pool']['start_servers']
-  min_spare_servers node[id]['postfixadmin']['pool']['min_spare_servers']
-  max_spare_servers node[id]['postfixadmin']['pool']['max_spare_servers']
+  max_children node[id]['postfixadmin']['service']['pool']['max_children']
+  start_servers node[id]['postfixadmin']['service']['pool']['start_servers']
+  min_spare_servers \
+    node[id]['postfixadmin']['service']['pool']['min_spare_servers']
+  max_spare_servers \
+    node[id]['postfixadmin']['service']['pool']['max_spare_servers']
   additional_config(
-    'pm.max_requests' => node[id]['postfixadmin']['pool']['max_requests'],
+    'pm.max_requests' => \
+      node[id]['postfixadmin']['service']['pool']['max_requests'],
     'listen.mode' => '0666',
     'php_admin_flag[log_errors]' => 'on',
     'php_value[date.timezone]' => 'UTC',
     'php_value[expose_php]' => 'off',
     'php_value[display_errors]' => 'off',
-    'php_value[memory_limit]' => node[id]['postfixadmin']['php_memory_limit']
+    'php_value[memory_limit]' => \
+      node[id]['postfixadmin']['service']['php_memory_limit']
   )
 end
 
 template 'config.local.php' do
-  Chef::Resource::Template.send :include, Email::PHP
   path "#{node['ark']['prefix_root']}/postfixadmin/config.local.php"
-  source 'postfixadmin.config.local.php.erb'
+  source 'postfixadmin/config.local.php.erb'
   owner node[id]['postfixadmin']['user']
   group node[id]['postfixadmin']['group']
   mode 0640
   variables(
     db_type: 'pgsql',
-    db_host: node[id]['postgres']['listen']['address'],
-    db_port: node[id]['postgres']['listen']['port'],
+    db_host: node[id]['postgres']['host'],
+    db_port: node[id]['postgres']['port'],
     db_user: node[id]['postfixadmin']['database']['user'],
-    db_password: data_bag_item('postgres', node.chef_environment)[
-      'credentials'][node[id]['postfixadmin']['database']['user']],
-    db_name: node[id]['postfixadmin']['database']['name'],
-    domain: node[id]['domain'],
-    server_name: node[id]['postfixadmin']['server_name'],
-    setup_password: encrypt_setup_password(
-      data_bag_item('postfixadmin', node.chef_environment)['admin_credentials']['password'],
-      data_bag_item('postfixadmin', node.chef_environment)['admin_credentials']['salt']
+    db_password: helper.postgres_user_password(
+      node[id]['postfixadmin']['database']['user']
     ),
-    conf: node[id]['postfixadmin']['conf']
+    db_name: node[id]['postfixadmin']['database']['name'],
+    setup_password: helper.postfixadmin_setup_password,
+    fqdn: node[id]['admin_fqdn'],
+    admin_address: node[id]['admin_address']
   )
 end
 
-fastcgi_pass =
-  "unix:#{node[id]['postfixadmin']['listen_sock']}"
+fastcgi_pass = "unix:#{node[id]['postfixadmin']['service']['listen_sock']}"
 
-template 'Mantis service nginx configuration' do
-  path ::File.join node['nginx']['dir'], 'sites-available', 'postfixadmin.conf'
-  source 'postfixadmin.nginx.conf.erb'
-  mode 0644
-  variables(
-    name: 'postfixadmin',
-    server_name: node[id]['postfixadmin']['server_name'],
-    docroot: "#{node['ark']['prefix_root']}/postfixadmin",
-    port: 80,
-    fastcgi_pass: fastcgi_pass
+tls_certificate node[id]['admin_fqdn'] do
+  action :deploy
+end
+
+tls_item = ChefCookbook::TLS.new(node).certificate_entry node[id]['admin_fqdn']
+
+nginx_conf_variables = {
+  name: 'postfixadmin',
+  server_name: node[id]['admin_fqdn'],
+  docroot: "#{node['ark']['prefix_root']}/postfixadmin",
+  insecure_port: 80,
+  secure_port: 443,
+  ssl_certificate: tls_item.certificate_path,
+  ssl_certificate_key: tls_item.certificate_private_key_path,
+  hsts: true,
+  hsts_max_age: node[id]['postfixadmin']['service']['hsts_max_age'],
+  oscp_stapling: false,
+  scts: false,
+  hpkp: false,
+  fastcgi_pass: fastcgi_pass
+}
+
+if node.chef_environment.start_with?('staging', 'production')
+  nginx_conf_variables.merge!(
+    oscp_stapling: true,
+    scts: true,
+    scts_directory: tls_item.scts_dir,
+    hpkp: true,
+    hpkp_pins: tls_item.hpkp_pins,
+    hpkp_max_age: node[id]['postfixadmin']['service']['hpkp_max_age']
   )
+end
+
+template 'PostfixAdmin service nginx configuration' do
+  path ::File.join node['nginx']['dir'], 'sites-available', 'postfixadmin.conf'
+  source 'postfixadmin/nginx.conf.erb'
+  mode 0644
+  variables nginx_conf_variables
   notifies :reload, 'service[nginx]', :delayed
 end
 

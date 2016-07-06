@@ -7,3 +7,10 @@ include_recipe 'php::default'
     action :install
   end
 end
+
+execute 'Enable PHP imap' do
+  command 'php5enmod imap'
+  user 'root'
+  group node['root_group']
+  action :run
+end
