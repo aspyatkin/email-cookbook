@@ -3,6 +3,7 @@ id = 'email'
 %w(
   dovecot-core
   dovecot-imapd
+  dovecot-pop3d
   dovecot-sieve
   dovecot-lmtpd
   dovecot-pgsql
