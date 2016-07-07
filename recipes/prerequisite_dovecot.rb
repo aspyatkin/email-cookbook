@@ -65,6 +65,15 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-auth.conf" do
   notifies :reload, 'service[dovecot]', :delayed
 end
 
+template "#{node[id]['dovecot']['config']['root']}/conf.d/10-logging.conf" do
+  source 'dovecot/10-logging.conf.erb'
+  mode 0644
+  owner node[id]['dovecot']['config']['owner']
+  group node[id]['dovecot']['config']['group']
+  action :create
+  notifies :reload, 'service[dovecot]', :delayed
+end
+
 template "#{node[id]['dovecot']['config']['root']}/conf.d/10-mail.conf" do
   source 'dovecot/10-mail.conf.erb'
   mode 0644
@@ -78,18 +87,6 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-mail.conf" do
   action :create
   notifies :reload, 'service[dovecot]', :delayed
 end
-
-# template "#{node[id]['dovecot']['config']['root']}/conf.d/auth-passwdfile.conf.ext" do
-#   source 'dovecot/auth-passwdfile.conf.ext.erb'
-#   mode 0644
-#   owner node[id]['dovecot']['config']['owner']
-#   group node[id]['dovecot']['config']['group']
-#   variables(
-#     db_file: "#{node[id]['dovecot']['config']['root']}/#{node[id]['dovecot']['config']['db_file']}"
-#   )
-#   action :create
-#   notifies :reload, 'service[dovecot]', :delayed
-# end
 
 sql_conf_file = ::File.join(
   node[id]['dovecot']['config']['root'],

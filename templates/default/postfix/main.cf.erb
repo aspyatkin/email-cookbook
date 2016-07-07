@@ -73,3 +73,20 @@ virtual_alias_maps =
 virtual_mailbox_maps =
   proxy:pgsql:<%= @virtual_mailbox_maps_file %>,
   proxy:pgsql:<%= @virtual_alias_domain_mailbox_maps_file %>
+
+#the dh params
+smtpd_tls_dh1024_param_file = <%= @smtpd_tls_dh1024_param_file %>
+smtpd_tls_dh512_param_file = <%= @smtpd_tls_dh512_param_file %>
+#enable ECDH
+smtpd_tls_eecdh_grade = strong
+
+smtpd_tls_protocols= !SSLv2, !SSLv3
+
+smtpd_tls_mandatory_protocols= !SSLv2, !SSLv3
+smtpd_tls_mandatory_ciphers = high
+smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+
+tls_preempt_cipherlist = yes
+
+smtpd_tls_loglevel = 1
+smtp_tls_loglevel = 1

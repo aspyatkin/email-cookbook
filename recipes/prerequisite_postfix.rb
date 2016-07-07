@@ -196,6 +196,24 @@ template db_virtual_alias_domain_mailbox_maps_file do
   notifies :reload, 'service[postfix]', :delayed
 end
 
+dh_512_path = ::File.join node[id]['postfix']['config']['root'], 'dh_512'
+
+execute "openssl gendh -out #{dh_512_path} -2 512" do
+  user 'root'
+  group node['root_group']
+  creates dh_512_path
+  action :run
+end
+
+dh_1024_path = ::File.join node[id]['postfix']['config']['root'], 'dh_1024'
+
+execute "openssl gendh -out #{dh_1024_path} -2 1024" do
+  user 'root'
+  group node['root_group']
+  creates dh_1024_path
+  action :run
+end
+
 tls_certificate node[id]['hostname'] do
   action :deploy
 end
@@ -221,7 +239,9 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
       db_virtual_alias_domain_catchall_maps_file,
     virtual_mailbox_maps_file: db_virtual_mailbox_maps_file,
     virtual_alias_domain_mailbox_maps_file: \
-      db_virtual_alias_domain_mailbox_maps_file
+      db_virtual_alias_domain_mailbox_maps_file,
+    smtpd_tls_dh1024_param_file: dh_1024_path,
+    smtpd_tls_dh512_param_file: dh_512_path
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed
