@@ -241,7 +241,9 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
     virtual_alias_domain_mailbox_maps_file: \
       db_virtual_alias_domain_mailbox_maps_file,
     smtpd_tls_dh1024_param_file: dh_1024_path,
-    smtpd_tls_dh512_param_file: dh_512_path
+    smtpd_tls_dh512_param_file: dh_512_path,
+    postgrey_host: node[id]['postgrey']['host'],
+    postgrey_port: node[id]['postgrey']['port']
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed

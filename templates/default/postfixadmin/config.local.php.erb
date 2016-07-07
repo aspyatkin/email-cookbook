@@ -178,15 +178,15 @@ function maildir_name_hook($domain, $user) {
 
 // Default Domain Values
 // Specify your default values below. Quota in MB.
-$CONF['aliases'] = '10';
-$CONF['mailboxes'] = '10';
-$CONF['maxquota'] = '10';
+$CONF['aliases'] = '25';
+$CONF['mailboxes'] = '25';
+$CONF['maxquota'] = '250';
 
 // Quota
 // When you want to enforce quota for your mailbox users set this to 'YES'.
-$CONF['quota'] = 'NO';
+$CONF['quota'] = 'YES';
 // You can either use '1024000' or '1048576'
-$CONF['quota_multiplier'] = '1024000';
+$CONF['quota_multiplier'] = '1048576';
 
 // Transport
 // If you want to define additional transport options for a domain set this to 'YES'.
@@ -397,7 +397,7 @@ $CONF['create_mailbox_subdirs_prefix']='';
 // See: DOCUMENTATION/DOVECOT.txt
 //      http://wiki.dovecot.org/Quota/Dict
 //
-$CONF['used_quotas'] = 'NO';
+$CONF['used_quotas'] = 'YES';
 
 // if you use dovecot >= 1.2, set this to yes.
 // Note about dovecot config: table "quota" is for 1.0 & 1.1, table "quota2" is for dovecot 1.2 and newer

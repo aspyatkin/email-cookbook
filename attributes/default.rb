@@ -69,3 +69,6 @@ default[id]['opendkim']['service']['host'] = '127.0.0.1'
 default[id]['opendkim']['service']['port'] = 8891
 default[id]['opendkim']['selector'] = 'default'
 default[id]['opendkim']['domainkey'] = '_domainkey'
+
+default[id]['postgrey']['host'] = '127.0.0.1'
+default[id]['postgrey']['port'] = 10_023
