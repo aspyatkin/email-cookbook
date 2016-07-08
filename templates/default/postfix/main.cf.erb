@@ -4,7 +4,11 @@
 # Debian specific:  Specifying a file name will cause the first
 # line of that file to be used as the name.  The Debian default
 # is /etc/mailname.
-#myorigin = /etc/mailname
+mydomain = <%= @domain %>
+myhostname = <%= @hostname %>
+myorigin = $mydomain
+
+masquerade_domains = $mydomain
 
 biff = no
 
@@ -12,23 +16,21 @@ biff = no
 append_dot_mydomain = no
 
 # Uncomment the next line to generate "delayed mail" warnings
-#delay_warning_time = 4h
+delay_warning_time = 4h
+
+unknown_local_recipient_reject_code = 450
 
 readme_directory = no
 
 # See /usr/share/doc/postfix/TLS_README.gz in the postfix-doc package for
 # information on enabling SSL in the smtp client.
 
-smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
-mydomain  = <%= @mydomain %>
-myhostname = <%= @myhostname %>
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
-myorigin = $myhostname
-mydestination = $myhostname, localhost.$mydomain, localhost
-relayhost = 
-mynetworks = 127.0.0.1/32
+mydestination =
+relayhost =
 mynetworks_style = host
+mynetworks = 127.0.0.1/32
 mailbox_size_limit = 409600000
 recipient_delimiter = +
 inet_interfaces = all
@@ -37,38 +39,78 @@ inet_protocols = ipv4
 disable_vrfy_command = yes
 
 alias_maps = hash:/etc/aliases
-local_recipient_maps = $alias_maps
+local_recipient_maps =
 
 message_size_limit = 8192000
 
+strict_rfc821_envelopes = yes
+
+smtp_helo_timeout = 60s
 smtp_tls_security_level = may
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtp_tls_loglevel = 1
+
 smtpd_use_tls=yes
-smtpd_banner = $myhostname ESMTP
-smtpd_helo_required = yes
-smtpd_recipient_restrictions =
-  reject_unknown_recipient_domain,
-  permit_mynetworks,
-  reject_non_fqdn_recipient,
-  reject_unauth_destination,
-  check_policy_service inet:<%= @postgrey_host %>:<%= @postgrey_port %>
-  reject_unverified_recipient,
-  permit
-smtpd_sasl_path = private/auth
-smtpd_sasl_type = dovecot
 smtpd_tls_cert_file = <%= @smtpd_tls_cert_file %>
 smtpd_tls_key_file = <%= @smtpd_tls_key_file %>
-smtpd_tls_security_level = may
-strict_rfc821_envelopes = yes
-unknown_local_recipient_reject_code = 550
-virtual_transport = lmtp:unix:private/dovecot-lmtp
-
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
-smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtpd_tls_security_level = may
+smtpd_tls_dh1024_param_file = <%= @smtpd_tls_dh1024_param_file %>
+smtpd_tls_dh512_param_file = <%= @smtpd_tls_dh512_param_file %>
+smtpd_tls_eecdh_grade = strong
+smtpd_tls_protocols= !SSLv2, !SSLv3
+smtpd_tls_mandatory_protocols= !SSLv2, !SSLv3
+smtpd_tls_mandatory_ciphers = high
+smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
+smtpd_tls_loglevel = 1
+smtpd_banner = $myhostname ESMTP $mail_name
+
+smtpd_delay_reject = yes
+
+smtpd_helo_required = yes
+smtpd_helo_restrictions =
+  permit_mynetworks,
+  permit_sasl_authenticated,
+  reject_non_fqdn_helo_hostname,
+  reject_invalid_helo_hostname
+
+smtpd_sender_restrictions =
+  permit_mynetworks,
+  permit_sasl_authenticated,
+  reject_non_fqdn_sender,
+  reject_unknown_sender_domain,
+  reject_unauth_pipelining
+
+smtpd_relay_restrictions =
+  permit_mynetworks,
+  permit_sasl_authenticated,
+  defer_unauth_destination
+
+smtpd_recipient_restrictions =
+  reject_non_fqdn_recipient,
+  reject_unknown_recipient_domain,
+  reject_multi_recipient_bounce,
+  permit_mynetworks,
+  permit_sasl_authenticated,
+  reject_unauth_destination,
+  check_policy_service inet:<%= @postgrey_host %>:<%= @postgrey_port %>
+  reject_unverified_recipient
+
+smtpd_data_restrictions =
+  permit_mynetworks,
+  permit_sasl_authenticated,
+  reject_unauth_pipelining,
+  reject_multi_recipient_bounce
+
+smtpd_sasl_path = private/auth
+smtpd_sasl_type = dovecot
 
 milter_default_action = accept
 milter_protocol = 6
 smtpd_milters = inet:<%= @opendkim_host %>:<%= @opendkim_port %>
 non_smtpd_milters = inet:<%= @opendkim_host %>:<%= @opendkim_port %>
+
+virtual_transport = lmtp:unix:private/dovecot-lmtp
 
 virtual_mailbox_domains = proxy:pgsql:<%= @virtual_domains_maps_file %>
 
@@ -80,20 +122,3 @@ virtual_alias_maps =
 virtual_mailbox_maps =
   proxy:pgsql:<%= @virtual_mailbox_maps_file %>,
   proxy:pgsql:<%= @virtual_alias_domain_mailbox_maps_file %>
-
-#the dh params
-smtpd_tls_dh1024_param_file = <%= @smtpd_tls_dh1024_param_file %>
-smtpd_tls_dh512_param_file = <%= @smtpd_tls_dh512_param_file %>
-#enable ECDH
-smtpd_tls_eecdh_grade = strong
-
-smtpd_tls_protocols= !SSLv2, !SSLv3
-
-smtpd_tls_mandatory_protocols= !SSLv2, !SSLv3
-smtpd_tls_mandatory_ciphers = high
-smtpd_tls_mandatory_exclude_ciphers = aNULL, MD5 , DES, ADH, RC4, PSD, SRP, 3DES, eNULL
-
-tls_preempt_cipherlist = yes
-
-smtpd_tls_loglevel = 1
-smtp_tls_loglevel = 1

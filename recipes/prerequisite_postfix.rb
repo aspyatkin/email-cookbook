@@ -226,8 +226,8 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
   owner node[id]['postfix']['config']['owner']
   group node[id]['postfix']['config']['group']
   variables(
-    myhostname: node[id]['hostname'],
-    mydomain: node[id]['domain'],
+    hostname: node[id]['hostname'],
+    domain: node[id]['domain'],
     smtpd_tls_cert_file: tls_item.certificate_path,
     smtpd_tls_key_file: tls_item.certificate_private_key_path,
     opendkim_host: node[id]['opendkim']['service']['host'],
