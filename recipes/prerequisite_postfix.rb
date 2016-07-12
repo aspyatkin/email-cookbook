@@ -243,7 +243,9 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
     smtpd_tls_dh1024_param_file: dh_1024_path,
     smtpd_tls_dh512_param_file: dh_512_path,
     postgrey_host: node[id]['postgrey']['host'],
-    postgrey_port: node[id]['postgrey']['port']
+    postgrey_port: node[id]['postgrey']['port'],
+    amavis_host: node[id]['amavis']['service']['host'],
+    amavis_port: node[id]['amavis']['service']['port']
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed

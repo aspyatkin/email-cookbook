@@ -106,7 +106,8 @@ nginx_conf_variables = {
   oscp_stapling: false,
   scts: false,
   hpkp: false,
-  fastcgi_pass: fastcgi_pass
+  fastcgi_pass: fastcgi_pass,
+  disable_setup_page: node[id]['postfixadmin']['service']['disable_setup_page']
 }
 
 if node.chef_environment.start_with?('staging', 'production')

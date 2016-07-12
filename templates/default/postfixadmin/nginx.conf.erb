@@ -58,6 +58,12 @@ server {
     deny all;
   }
 
+  <% if @disable_setup_page %>
+  location ~ ^(/setup\.php) {
+    deny all;
+  }
+  <% end %>
+
   location ~ ^(.+?\.php)(/.*)?$ {
     try_files $1 = 404;
 

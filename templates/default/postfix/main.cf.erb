@@ -45,6 +45,8 @@ message_size_limit = 8192000
 
 strict_rfc821_envelopes = yes
 
+tls_preempt_cipherlist = yes
+
 smtp_helo_timeout = 60s
 smtp_tls_security_level = may
 smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
@@ -122,3 +124,5 @@ virtual_alias_maps =
 virtual_mailbox_maps =
   proxy:pgsql:<%= @virtual_mailbox_maps_file %>,
   proxy:pgsql:<%= @virtual_alias_domain_mailbox_maps_file %>
+
+content_filter = smtp-amavis:[<%= @amavis_host %>]:<%= @amavis_port %>

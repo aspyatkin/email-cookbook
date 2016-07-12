@@ -28,22 +28,13 @@ default[id]['postfixadmin']['service']['listen_sock'] = \
 
 default[id]['postfixadmin']['service']['hsts_max_age'] = 15_724_800
 default[id]['postfixadmin']['service']['hpkp_max_age'] = 604_800
+default[id]['postfixadmin']['service']['disable_setup_page'] = false
 
 default[id]['vmail']['uid'] = 5000
 default[id]['vmail']['gid'] = 5000
 default[id]['vmail']['user'] = 'vmail'
 default[id]['vmail']['group'] = 'vmail'
 default[id]['vmail']['home'] = '/var/vmail'
-
-# default[id]['postfix']['map_files']['list'] = %w(
-#   db_virtual_alias_maps.cf
-#   db_virtual_alias_domain_maps.cf
-#   db_virtual_alias_domain_catchall_maps.cf
-#   db_virtual_domains_maps.cf
-#   db_virtual_mailbox_maps.cf
-#   db_virtual_alias_domain_mailbox_maps.cf
-#   db_virtual_mailbox_limit_maps.cf
-# )
 
 default[id]['postfix']['config']['root'] = '/etc/postfix'
 default[id]['postfix']['config']['owner'] = 'root'
@@ -72,3 +63,13 @@ default[id]['opendkim']['domainkey'] = '_domainkey'
 
 default[id]['postgrey']['host'] = '127.0.0.1'
 default[id]['postgrey']['port'] = 10_023
+
+default[id]['amavis']['config']['root'] = '/etc/amavis'
+default[id]['amavis']['config']['owner'] = 'root'
+default[id]['amavis']['config']['group'] = 'root'
+default[id]['amavis']['service']['host'] = '127.0.0.1'
+default[id]['amavis']['service']['port'] = 10_024
+default[id]['amavis']['service']['user'] = 'amavis'
+default[id]['amavis']['service']['group'] = 'amavis'
+
+default[id]['amavis']['database']['user'] = 'amavis'
