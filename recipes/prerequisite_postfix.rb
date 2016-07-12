@@ -276,6 +276,9 @@ template "#{node[id]['postfix']['config']['root']}/master.cf" do
   mode 0644
   owner node[id]['postfix']['config']['owner']
   group node[id]['postfix']['config']['group']
+  variables(
+    amavis_max_servers: node[id]['amavis']['service']['max_servers']
+  )
   action :create
   notifies :reload, 'service[postfix]', :delayed
 end

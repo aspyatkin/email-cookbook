@@ -71,5 +71,9 @@ default[id]['amavis']['service']['host'] = '127.0.0.1'
 default[id]['amavis']['service']['port'] = 10_024
 default[id]['amavis']['service']['user'] = 'amavis'
 default[id]['amavis']['service']['group'] = 'amavis'
+default[id]['amavis']['service']['max_servers'] = 2
 
 default[id]['amavis']['database']['user'] = 'amavis'
+
+default[id]['clamav']['service']['user'] = 'clamav'
+default[id]['clamav']['service']['group'] = 'clamav'

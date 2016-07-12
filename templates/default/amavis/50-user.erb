@@ -14,6 +14,7 @@ $myhostname = '<%= @hostname %>';
 @local_domains_acl = ( <%= @sending_domains.map { |d| "\"#{d}\""}.join ', ' %> );
 
 $inet_socket_port = <%= @listen_port %>;   # default listening socket
+$max_servers = <%= @max_servers %>;
 
 $sa_spam_subject_tag = '***SPAM*** ';
 $spam_quarantine_to  = undef;

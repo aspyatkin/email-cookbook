@@ -57,6 +57,7 @@ template "#{node[id]['amavis']['config']['root']}"\
     hostname: node[id]['hostname'],
     sending_domains: node[id]['sending_domains'],
     listen_port: node[id]['amavis']['service']['port'],
+    max_servers: node[id]['amavis']['service']['max_servers'],
     db_user: node[id]['amavis']['database']['user'],
     db_password: helper.postgres_user_password(
       node[id]['amavis']['database']['user']
@@ -67,6 +68,18 @@ template "#{node[id]['amavis']['config']['root']}"\
   )
   action :create
   notifies :restart, 'service[amavis]', :delayed
+end
+
+group node[id]['amavis']['service']['group'] do
+  append true
+  members node[id]['clamav']['service']['user']
+  action :modify
+end
+
+group node[id]['clamav']['service']['group'] do
+  append true
+  members node[id]['amavis']['service']['user']
+  action :modify
 end
 
 service 'amavis' do
