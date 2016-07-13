@@ -142,6 +142,6 @@ driver = pgsql
 connect = host=<%= @db_host %> port=<%= @db_port %> dbname=<%= @db_name %> user=<%= @db_user %> password=<%= @db_password %>
 default_pass_scheme = MD5-CRYPT
 
-password_query = SELECT username AS user,password FROM mailbox WHERE username = '%u' AND active='1'
+password_query = SELECT username AS user,password FROM mailbox WHERE username = '%u' AND active = '1'
 
-user_query = SELECT '<%= @vmail_home %>/' || maildir AS home, <%= @vmail_uid %> AS uid, <%= @vmail_gid %> AS gid, '*:bytes=' || quota AS quota_rule FROM mailbox WHERE username = '%u' AND active='1'
+user_query = SELECT '<%= @vmail_home %>/' || mailbox.maildir AS home, <%= @vmail_uid %> AS uid, <%= @vmail_gid %> AS gid, '*:bytes=' || CASE WHEN mailbox.quota = 0 THEN domain.maxquota * <%= @quota_multiplier %> ELSE mailbox.quota END AS quota_rule FROM mailbox, domain WHERE mailbox.username = '%u' AND mailbox.active = '1' AND domain.domain = '%d' AND domain.active = '1'

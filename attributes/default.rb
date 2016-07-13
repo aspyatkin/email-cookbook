@@ -17,6 +17,8 @@ default[id]['postfixadmin']['checksum'] =
 default[id]['postfixadmin']['database']['name'] = 'postfix'
 default[id]['postfixadmin']['database']['user'] = 'postfixadmin'
 
+default[id]['postfixadmin']['quota_multiplier'] = 1_048_576
+
 default[id]['postfixadmin']['service']['pool']['max_childen'] = 5
 default[id]['postfixadmin']['service']['pool']['start_servers'] = 2
 default[id]['postfixadmin']['service']['pool']['min_spare_servers'] = 1
@@ -50,6 +52,9 @@ default[id]['dovecot']['config']['group'] = 'root'
 default[id]['dovecot']['config']['db_file'] = 'users'
 
 default[id]['dovecot']['database']['user'] = 'dovecot'
+
+default[id]['dovecot']['quota_status']['host'] = '127.0.0.1'
+default[id]['dovecot']['quota_status']['port'] = 12_340
 
 default[id]['opendkim']['config']['root'] = '/etc/opendkim'
 default[id]['opendkim']['config']['owner'] = 'root'

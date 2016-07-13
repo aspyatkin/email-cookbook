@@ -186,7 +186,7 @@ $CONF['maxquota'] = '250';
 // When you want to enforce quota for your mailbox users set this to 'YES'.
 $CONF['quota'] = 'YES';
 // You can either use '1024000' or '1048576'
-$CONF['quota_multiplier'] = '1048576';
+$CONF['quota_multiplier'] = '<%= @quota_multiplier %>';
 
 // Transport
 // If you want to define additional transport options for a domain set this to 'YES'.

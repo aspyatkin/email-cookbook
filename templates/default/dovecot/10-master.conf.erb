@@ -114,8 +114,8 @@ service dict {
   # If dict proxy is used, mail processes should have access to its socket.
   # For example: mode=0660, group=vmail and global mail_access_groups=vmail
   unix_listener dict {
-    #mode = 0600
-    #user = 
-    #group = 
+    mode = 0600
+    user = <%= @vmail_user %>
+    group = <%= @vmail_group %>
   }
 }

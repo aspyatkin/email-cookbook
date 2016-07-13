@@ -11,6 +11,9 @@ use strict;
 $mydomain = '<%= @domain %>';
 $myhostname = '<%= @hostname %>';
 
+@mynetworks = qw( 127.0.0.1/32 );
+@client_ipaddr_policy = map { $_ => 'MYNETS' } @mynetworks;
+
 @local_domains_acl = ( <%= @sending_domains.map { |d| "\"#{d}\""}.join ', ' %> );
 
 $inet_socket_port = <%= @listen_port %>;   # default listening socket

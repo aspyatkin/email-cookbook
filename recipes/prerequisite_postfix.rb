@@ -245,7 +245,9 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
     postgrey_host: node[id]['postgrey']['host'],
     postgrey_port: node[id]['postgrey']['port'],
     amavis_host: node[id]['amavis']['service']['host'],
-    amavis_port: node[id]['amavis']['service']['port']
+    amavis_port: node[id]['amavis']['service']['port'],
+    dovecot_quota_status_host: node[id]['dovecot']['quota_status']['host'],
+    dovecot_quota_status_port: node[id]['dovecot']['quota_status']['port']
   )
   action :create
   notifies :reload, 'service[postfix]', :delayed

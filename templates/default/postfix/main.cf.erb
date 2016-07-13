@@ -41,7 +41,7 @@ disable_vrfy_command = yes
 alias_maps = hash:/etc/aliases
 local_recipient_maps =
 
-message_size_limit = 8192000
+message_size_limit = 26214400
 
 strict_rfc821_envelopes = yes
 
@@ -95,7 +95,8 @@ smtpd_recipient_restrictions =
   permit_mynetworks,
   permit_sasl_authenticated,
   reject_unauth_destination,
-  check_policy_service inet:<%= @postgrey_host %>:<%= @postgrey_port %>
+  check_policy_service inet:<%= @dovecot_quota_status_host %>:<%= @dovecot_quota_status_port %>,
+  check_policy_service inet:<%= @postgrey_host %>:<%= @postgrey_port %>,
   reject_unverified_recipient
 
 smtpd_data_restrictions =

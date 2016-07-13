@@ -81,7 +81,8 @@ template 'config.local.php' do
     db_name: node[id]['postfixadmin']['database']['name'],
     setup_password: helper.postfixadmin_setup_password,
     fqdn: node[id]['admin_fqdn'],
-    admin_address: node[id]['admin_address']
+    admin_address: node[id]['admin_address'],
+    quota_multiplier: node[id]['postfixadmin']['quota_multiplier']
   )
 end
 
