@@ -82,3 +82,28 @@ default[id]['amavis']['database']['user'] = 'amavis'
 
 default[id]['clamav']['service']['user'] = 'clamav'
 default[id]['clamav']['service']['group'] = 'clamav'
+
+default[id]['roundcube']['version'] = '1.2.0'
+default[id]['roundcube']['url'] = \
+  'https://github.com/roundcube/roundcubemail/releases/download/'\
+  '%{version}/roundcubemail-%{version}.tar.gz'
+default[id]['roundcube']['checksum'] =
+  'e3b89c2772c2c5990da9bca640bc342f486edf356016cf717e6a1083c822b523'
+
+default[id]['roundcube']['user'] = 'roundcube'
+default[id]['roundcube']['group'] = 'roundcube'
+
+default[id]['roundcube']['database']['name'] = 'roundcube'
+default[id]['roundcube']['database']['user'] = 'roundcube'
+
+default[id]['roundcube']['service']['pool']['max_childen'] = 5
+default[id]['roundcube']['service']['pool']['start_servers'] = 2
+default[id]['roundcube']['service']['pool']['min_spare_servers'] = 1
+default[id]['roundcube']['service']['pool']['max_spare_servers'] = 3
+default[id]['roundcube']['service']['pool']['max_requests'] = 100
+default[id]['roundcube']['service']['php_memory_limit'] = '64M'
+default[id]['roundcube']['service']['listen_sock'] = \
+  '/var/run/php-fpm-roundcube.sock'
+default[id]['roundcube']['service']['hsts_max_age'] = 15_724_800
+default[id]['roundcube']['service']['hpkp_max_age'] = 604_800
+default[id]['roundcube']['service']['enable_installer'] = true
