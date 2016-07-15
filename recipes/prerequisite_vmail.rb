@@ -13,3 +13,10 @@ user node[id]['vmail']['user'] do
   home node[id]['vmail']['home']
   action :create
 end
+
+directory node[id]['vmail']['trashbase'] do
+  owner node[id]['vmail']['user']
+  group node[id]['vmail']['group']
+  mode 0755
+  action :create
+end

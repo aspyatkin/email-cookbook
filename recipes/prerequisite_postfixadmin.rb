@@ -64,6 +64,44 @@ php_fpm_pool 'postfixadmin' do
   )
 end
 
+mailbox_postdeletion_path = '/usr/local/bin/postfixadmin-mailbox-postdeletion'
+
+template mailbox_postdeletion_path do
+  source 'postfixadmin/mailbox-postdeletion.sh.erb'
+  owner 'root'
+  group node['root_group']
+  mode 0755
+  variables(
+    basedir: node[id]['vmail']['home'],
+    trashbase: node[id]['vmail']['trashbase']
+  )
+  action :create
+end
+
+domain_postdeletion_path = '/usr/local/bin/postfixadmin-domain-postdeletion'
+
+template domain_postdeletion_path do
+  source 'postfixadmin/domain-postdeletion.sh.erb'
+  owner 'root'
+  group node['root_group']
+  mode 0755
+  variables(
+    basedir: node[id]['vmail']['home'],
+    trashbase: node[id]['vmail']['trashbase']
+  )
+  action :create
+end
+
+file '/etc/sudoers.d/postfixadmin' do
+  owner 'root'
+  group node['root_group']
+  content "#{node[id]['postfixadmin']['user']} ALL=("\
+          "#{node[id]['vmail']['user']}) NOPASSWD: "\
+          "#{mailbox_postdeletion_path}, #{domain_postdeletion_path}\n"
+  mode 0440
+  action :create
+end
+
 template 'config.local.php' do
   path "#{node['ark']['prefix_root']}/postfixadmin/config.local.php"
   source 'postfixadmin/config.local.php.erb'
@@ -82,7 +120,10 @@ template 'config.local.php' do
     setup_password: helper.postfixadmin_setup_password,
     fqdn: node[id]['admin_fqdn'],
     admin_address: node[id]['admin_address'],
-    quota_multiplier: node[id]['postfixadmin']['quota_multiplier']
+    quota_multiplier: node[id]['postfixadmin']['quota_multiplier'],
+    vmail_user: node[id]['vmail']['user'],
+    mailbox_postdeletion_path: mailbox_postdeletion_path,
+    domain_postdeletion_path: domain_postdeletion_path
   )
 end
 

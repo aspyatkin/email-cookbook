@@ -262,13 +262,13 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/20-pop3.conf" do
   notifies :reload, 'service[dovecot]', :delayed
 end
 
-quota_warning_path = '/usr/local/bin/quota-warning'
+quota_warning_path = '/usr/local/bin/dovecot-quota-warning'
 
 template quota_warning_path do
   source 'dovecot/quota-warning.sh.erb'
   mode 0755
-  owner node[id]['vmail']['user']
-  group node[id]['vmail']['group']
+  owner 'root'
+  group node['root_group']
   variables(
     admin_address: node[id]['admin_address']
   )

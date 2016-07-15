@@ -37,6 +37,7 @@ default[id]['vmail']['gid'] = 5000
 default[id]['vmail']['user'] = 'vmail'
 default[id]['vmail']['group'] = 'vmail'
 default[id]['vmail']['home'] = '/var/vmail'
+default[id]['vmail']['trashbase'] = '/var/vmail/.trash'
 
 default[id]['postfix']['config']['root'] = '/etc/postfix'
 default[id]['postfix']['config']['owner'] = 'root'
