@@ -73,7 +73,14 @@ template mailbox_postdeletion_path do
   mode 0755
   variables(
     basedir: node[id]['vmail']['home'],
-    trashbase: node[id]['vmail']['trashbase']
+    trashbase: node[id]['vmail']['trashbase'],
+    db_host: node[id]['postgres']['host'],
+    db_port: node[id]['postgres']['port'],
+    db_user: node[id]['roundcube']['database']['user'],
+    db_password: helper.postgres_user_password(
+      node[id]['roundcube']['database']['user']
+    ),
+    db_name: node[id]['roundcube']['database']['name']
   )
   action :create
 end
@@ -87,7 +94,14 @@ template domain_postdeletion_path do
   mode 0755
   variables(
     basedir: node[id]['vmail']['home'],
-    trashbase: node[id]['vmail']['trashbase']
+    trashbase: node[id]['vmail']['trashbase'],
+    db_host: node[id]['postgres']['host'],
+    db_port: node[id]['postgres']['port'],
+    db_user: node[id]['roundcube']['database']['user'],
+    db_password: helper.postgres_user_password(
+      node[id]['roundcube']['database']['user']
+    ),
+    db_name: node[id]['roundcube']['database']['name']
   )
   action :create
 end

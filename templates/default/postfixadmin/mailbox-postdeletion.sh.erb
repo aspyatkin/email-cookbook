@@ -21,7 +21,6 @@
 # The line states that the apache user may run the script as the
 # user "courier" without providing a password.
 
-
 # Change this to where you keep your virtual mail users' maildirs.
 basedir=<%= @basedir %>
 
@@ -70,6 +69,12 @@ fi
 if [ -e "$trashdir" ]; then
     echo "trashdir '$trashdir' already exists; bailing out."
     exit 1
+fi
+
+PGPASSWORD=<%= @db_password %> psql -h <%= @db_host %> -p <%= @db_port %> -U <%= @db_user %> -d <%= @db_name %> -c "DELETE FROM users WHERE username='$1'"
+if [ $? -ne 0 ]; then
+  echo "Problem with RoundCube database; bailing out."
+  exit 1
 fi
 
 mv $maildir $trashdir

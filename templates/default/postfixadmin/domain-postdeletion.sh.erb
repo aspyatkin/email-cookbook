@@ -56,6 +56,12 @@ if [ -e "$trashdir" ]; then
     exit 1;
 fi
 
+PGPASSWORD=<%= @db_password %> psql -h <%= @db_host %> -p <%= @db_port %> -U <%= @db_user %> -d <%= @db_name %> -c "DELETE FROM users WHERE username ~ '@$1$'"
+if [ $? -ne 0 ]; then
+  echo "Problem with RoundCube database; bailing out."
+  exit 1
+fi
+
 mv $domaindir $trashdir
 
 exit $?
