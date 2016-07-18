@@ -33,13 +33,10 @@ id = 'email'
   end
 end
 
-execute 'Update ClamAV virus signature databases' do
-  command 'freshclam'
-  user node[id]['clamav']['service']['user']
-  group node[id]['clamav']['service']['group']
-  action :run
+service 'clamav-daemon' do
+  action [:enable, :start]
 end
 
-service 'clamav-daemon' do
+service 'clamav-freshclam' do
   action [:enable, :start]
 end
