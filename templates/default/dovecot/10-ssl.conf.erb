@@ -49,7 +49,7 @@ ssl_dh_parameters_length = 1024
 ssl_protocols = !SSLv2 !SSLv3
 
 # SSL ciphers to use
-ssl_cipher_list = EECDH+ECDSA+AESGCM:EECDH+aRSA+AESGCM:EECDH+ECDSA+SHA384:EECDH+ECDSA+SHA256:EECDH+aRSA+SHA384:EECDH+aRSA+SHA256:EECDH+aRSA+RC4:EECDH:EDH+aRSA:!aNULL:!eNULL:!LOW:!3DES:!MD5:!EXP:!PSK:!SRP:!DSS:!RC4
+ssl_cipher_list = ALL:!LOW:!SSLv2:!EXP:!aNULL
 
 # Prefer the server's order of ciphers over client's.
 ssl_prefer_server_ciphers = yes
