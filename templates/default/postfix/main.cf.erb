@@ -97,6 +97,7 @@ smtpd_recipient_restrictions =
   reject_unauth_destination,
   check_policy_service inet:<%= @dovecot_quota_status_host %>:<%= @dovecot_quota_status_port %>,
   check_policy_service inet:<%= @postgrey_host %>:<%= @postgrey_port %>,
+  check_policy_service unix:private/policy-spf,
   reject_unverified_recipient
 
 smtpd_data_restrictions =
