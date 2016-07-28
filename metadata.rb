@@ -16,6 +16,6 @@ depends 'composer', '~> 2.2.0'
 
 depends 'latest-git', '~> 1.1.9'
 depends 'modern_nginx', '~> 1.3.0'
-depends 'tls', '~> 1.0.1'
+depends 'tls', '~> 2.0.0'
 
 supports 'ubuntu'
