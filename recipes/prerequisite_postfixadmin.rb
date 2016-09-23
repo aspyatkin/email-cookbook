@@ -137,7 +137,8 @@ template 'config.local.php' do
     quota_multiplier: node[id]['postfixadmin']['quota_multiplier'],
     vmail_user: node[id]['vmail']['user'],
     mailbox_postdeletion_path: mailbox_postdeletion_path,
-    domain_postdeletion_path: domain_postdeletion_path
+    domain_postdeletion_path: domain_postdeletion_path,
+    emailcheck_resolve_domain: node.chef_environment.start_with?('production')
   )
 end
 

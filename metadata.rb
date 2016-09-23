@@ -10,12 +10,13 @@ recipe 'email', 'Installs and configures email server'
 
 depends 'postgresql', '~> 4.0.6'
 depends 'database', '~> 5.1.2'
-depends 'php', '~> 1.9.0'
+depends 'php', '~> 2.0.0'
 depends 'ark', '~> 1.1.0'
 depends 'composer', '~> 2.2.0'
 
 depends 'latest-git', '~> 1.1.9'
 depends 'modern_nginx', '~> 1.3.0'
 depends 'tls', '~> 2.0.0'
+depends 'poise-python', '~> 1.5.1'
 
 supports 'ubuntu'

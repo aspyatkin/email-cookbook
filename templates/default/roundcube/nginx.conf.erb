@@ -18,6 +18,8 @@ server {
   <% if @hsts %>
   add_header Strict-Transport-Security "max-age=<%= @hsts_max_age %>" always;
   <% end %>
+  add_header X-Frame-Options SAMEORIGIN;
+  add_header Content-Security-Policy "default-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self'; frame-src 'self'; child-src 'self'; connect-src 'self';";
 
   <% if @oscp_stapling %>
   ssl_stapling on;

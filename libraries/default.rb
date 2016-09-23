@@ -8,11 +8,15 @@ module ChefCookbook
       'postgres'
     end
 
+    def self.instance_hostname
+      ::Socket.gethostname
+    end
+
     def postgres_user_password(username)
       ::Chef::EncryptedDataBagItem.load(
         'postgres',
         @node.chef_environment
-      )['credentials'].fetch(username, nil)
+      )[self.class.instance_hostname].fetch(username, nil)
     end
 
     def postgres_connection_info
