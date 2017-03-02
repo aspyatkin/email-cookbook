@@ -166,14 +166,8 @@ if node.chef_environment.start_with?('staging', 'production')
   )
 end
 
-template 'RoundCube service nginx configuration' do
-  path ::File.join node['nginx']['dir'], 'sites-available', 'roundcube.conf'
-  source 'roundcube/nginx.conf.erb'
-  mode 0644
+nginx_site 'roundcube' do
+  template 'roundcube/nginx.conf.erb'
   variables nginx_conf_variables
-  notifies :reload, 'service[nginx]', :delayed
-end
-
-nginx_site 'roundcube.conf' do
-  enabled true
+  action :enable
 end
