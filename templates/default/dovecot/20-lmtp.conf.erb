@@ -17,5 +17,5 @@ protocol lmtp {
   postmaster_address = <%= @postmaster_address %>
   hostname = <%= @hostname %>
   # Space separated list of plugins to load (default is global mail_plugins).
-  mail_plugins = $mail_plugins
+  mail_plugins = $mail_plugins sieve
 }

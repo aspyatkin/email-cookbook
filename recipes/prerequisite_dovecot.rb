@@ -7,6 +7,8 @@ id = 'email'
   dovecot-sieve
   dovecot-lmtpd
   dovecot-pgsql
+  dovecot-sieve
+  dovecot-managesieved
 ).each do |package_name|
   package package_name do
     action :install
@@ -286,6 +288,58 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/90-quota.conf" do
     quota_status_port: node[id]['dovecot']['quota_status']['port'],
     quota_warning_path: quota_warning_path,
     vmail_user: node[id]['vmail']['user']
+  )
+  action :create
+  notifies :reload, 'service[dovecot]', :delayed
+end
+
+sieve_basedir = '/var/lib/dovecot/sieve'
+
+directory sieve_basedir do
+  mode 0755
+  owner 'root'
+  group node['root_group']
+  recursive true
+  action :create
+end
+
+sieve_global_dir = ::File.join(sieve_basedir, 'global')
+
+directory sieve_global_dir do
+  mode 0755
+  owner 'root'
+  group node['root_group']
+  action :create
+end
+
+sieve_private_dir = ::File.join(sieve_basedir, 'private')
+
+directory sieve_private_dir do
+  mode 0700
+  owner node[id]['vmail']['user']
+  group node['root_group']
+  action :create
+end
+
+template "#{node[id]['dovecot']['config']['root']}/conf.d/90-sieve.conf" do
+  source 'dovecot/90-sieve.conf.erb'
+  mode 0644
+  owner node[id]['dovecot']['config']['owner']
+  group node[id]['dovecot']['config']['group']
+  variables(
+    sieve_global_dir: sieve_global_dir,
+    sieve_private_dir: sieve_private_dir
+  )
+  action :create
+  notifies :reload, 'service[dovecot]', :delayed
+end
+
+template "#{node[id]['dovecot']['config']['root']}/conf.d/20-managesieve.conf" do
+  source 'dovecot/20-managesieve.conf.erb'
+  mode 0644
+  owner node[id]['dovecot']['config']['owner']
+  group node[id]['dovecot']['config']['group']
+  variables(
   )
   action :create
   notifies :reload, 'service[dovecot]', :delayed

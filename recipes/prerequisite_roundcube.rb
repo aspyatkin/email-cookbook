@@ -7,7 +7,8 @@ end
 [
   ['Mail_mime', '1.10.0', 'stable'],
   ['Net_IDNA2', '0.1.1', 'beta'],
-  ['Net_SMTP', '1.7.2', 'stable']
+  ['Net_SMTP', '1.7.2', 'stable'],
+  ['Net_Sieve', '1.3.4', 'stable']
 ].each do |entry|
   php_pear entry[0] do
     version entry[1]
@@ -170,4 +171,22 @@ nginx_site 'roundcube' do
   template 'roundcube/nginx.conf.erb'
   variables nginx_conf_variables
   action :enable
+end
+
+managesieve_config_file_path = ::File.join(
+  node['ark']['prefix_root'],
+  'roundcube',
+  'plugins',
+  'managesieve',
+  'config.inc.php'
+)
+
+template managesieve_config_file_path do
+  source 'roundcube/managesieve_config.inc.php.erb'
+  mode 0644
+  owner node[id]['roundcube']['user']
+  group node[id]['roundcube']['group']
+  variables(
+  )
+  action :create
 end

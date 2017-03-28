@@ -1,0 +1,21 @@
+plugin {
+#  sieve_user_log = <%= @sieve_private_dir %>/%d/%n/.main.personal.log
+  sieve = <%= @sieve_private_dir %>/%d/%n/.main.personal.sieve
+  #sieve_default = /var/lib/dovecot/sieve/default.sieve
+  sieve_dir = <%= @sieve_private_dir %>/%d/%n/
+  sieve_global_dir = <%= @sieve_global_dir %>/
+  #sieve_before2 =
+  #sieve_before =
+  #sieve_after =
+  #sieve_after2 =
+  sieve_extensions = +editheader
+  #sieve_global_extensions = +vnd.dovecot.duplicate
+  #sieve_duplicate_period = 1d
+  #sieve_plugins =
+  recipient_delimiter = +
+  #sieve_max_script_size = 1M
+  #sieve_max_actions = 32
+  #sieve_max_redirects = 4
+  #sieve_quota_max_scripts = 0
+  #sieve_quota_max_storage = 0
+}
