@@ -40,7 +40,7 @@ ark 'roundcube' do
   action :install
 end
 
-helper = ChefCookbook::Email.new node
+helper = ChefCookbook::Email.new(node)
 
 postgresql_database node[id]['roundcube']['database']['name'] do
   connection helper.postgres_connection_info
@@ -133,11 +133,20 @@ end
 
 fastcgi_pass = "unix:#{node[id]['roundcube']['service']['listen_sock']}"
 
-tls_certificate node[id]['webmail_fqdn'] do
+tls_rsa_certificate node[id]['webmail_fqdn'] do
   action :deploy
 end
 
-tls_item = ChefCookbook::TLS.new(node).certificate_entry node[id]['webmail_fqdn']
+tls_rsa_item = ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['webmail_fqdn'])
+tls_ec_item = nil
+
+if node[id]['roundcube']['service']['use_ec_certificate']
+  tls_ec_certificate node[id]['webmail_fqdn'] do
+    action :deploy
+  end
+
+  tls_ec_item = ChefCookbook::TLS.new(node).ec_certificate_entry(node[id]['webmail_fqdn'])
+end
 
 nginx_conf_variables = {
   name: 'roundcube',
@@ -145,8 +154,11 @@ nginx_conf_variables = {
   docroot: "#{node['ark']['prefix_root']}/roundcube",
   insecure_port: 80,
   secure_port: 443,
-  ssl_certificate: tls_item.certificate_path,
-  ssl_certificate_key: tls_item.certificate_private_key_path,
+  ssl_rsa_certificate: tls_rsa_item.certificate_path,
+  ssl_rsa_certificate_key: tls_rsa_item.certificate_private_key_path,
+  ssl_ec_certificate: tls_ec_item.nil? ? nil : tls_ec_item.certificate_path,
+  ssl_ec_certificate_key: \
+    tls_ec_item.nil? ? nil : tls_ec_item.certificate_private_key_path,
   hsts: true,
   hsts_max_age: node[id]['roundcube']['service']['hsts_max_age'],
   oscp_stapling: false,
@@ -160,9 +172,12 @@ if node.chef_environment.start_with?('staging', 'production')
   nginx_conf_variables.merge!(
     oscp_stapling: true,
     scts: true,
-    scts_directory: tls_item.scts_dir,
+    scts_rsa_directory: tls_rsa_item.scts_dir,
+    scts_ec_directory: tls_ec_item.nil? ? nil : tls_ec_item.scts_dir,
     hpkp: true,
-    hpkp_pins: tls_item.hpkp_pins,
+    hpkp_pins: (
+      tls_rsa_item.hpkp_pins + (tls_ec_item.nil? ? [] : tls_ec_item.hpkp_pins)
+    ).uniq,
     hpkp_max_age: node[id]['roundcube']['service']['hpkp_max_age']
   )
 end

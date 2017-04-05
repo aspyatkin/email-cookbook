@@ -200,7 +200,7 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-master.conf" do
   notifies :reload, 'service[dovecot]', :delayed
 end
 
-tls_item = ::ChefCookbook::TLS.new(node).certificate_entry node[id]['hostname']
+tls_item = ::ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['hostname'])
 
 template "#{node[id]['dovecot']['config']['root']}/conf.d/10-ssl.conf" do
   source 'dovecot/10-ssl.conf.erb'

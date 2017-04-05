@@ -218,7 +218,7 @@ tls_certificate node[id]['hostname'] do
   action :deploy
 end
 
-tls_item = ::ChefCookbook::TLS.new(node).certificate_entry node[id]['hostname']
+tls_item = ::ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['hostname'])
 
 template "#{node[id]['postfix']['config']['root']}/main.cf" do
   source 'postfix/main.cf.erb'

@@ -13,8 +13,24 @@ server {
 
   charset utf-8;
 
-  ssl_certificate <%= @ssl_certificate %>;
-  ssl_certificate_key <%= @ssl_certificate_key %>;
+  <% if @scts %>
+  ssl_ct on;
+  <% end %>
+
+  ssl_certificate <%= @ssl_rsa_certificate %>;
+  ssl_certificate_key <%= @ssl_rsa_certificate_key %>;
+  <% if @scts %>
+  ssl_ct_static_scts <%= @scts_rsa_directory %>;
+  <% end %>
+
+  <% if !@ssl_ec_certificate.nil? && !@ssl_ec_certificate_key.nil? && !@scts_ec_directory.nil? %>
+  ssl_certificate <%= @ssl_ec_certificate %>;
+  ssl_certificate_key <%= @ssl_ec_certificate_key %>;
+  <% if @scts %>
+  ssl_ct_static_scts <%= @scts_ec_directory %>;
+  <% end %>
+  <% end %>
+
   <% if @hsts %>
   add_header Strict-Transport-Security "max-age=<%= @hsts_max_age %>" always;
   <% end %>
@@ -26,11 +42,6 @@ server {
   ssl_stapling_verify on;
   resolver 8.8.8.8 8.8.4.4 valid=300s;
   resolver_timeout 5s;
-  <% end %>
-
-  <% if @scts %>
-  ssl_ct on;
-  ssl_ct_static_scts <%= @scts_directory %>;
   <% end %>
 
   <% if @hpkp && @hpkp_pins.size > 0 %>

@@ -31,6 +31,7 @@ default[id]['postfixadmin']['service']['listen_sock'] = \
 default[id]['postfixadmin']['service']['hsts_max_age'] = 15_724_800
 default[id]['postfixadmin']['service']['hpkp_max_age'] = 604_800
 default[id]['postfixadmin']['service']['disable_setup_page'] = false
+default[id]['postfixadmin']['service']['use_ec_certificate'] = false
 
 default[id]['vmail']['uid'] = 5000
 default[id]['vmail']['gid'] = 5000
@@ -108,3 +109,4 @@ default[id]['roundcube']['service']['listen_sock'] = \
 default[id]['roundcube']['service']['hsts_max_age'] = 15_724_800
 default[id]['roundcube']['service']['hpkp_max_age'] = 604_800
 default[id]['roundcube']['service']['enable_installer'] = true
+default[id]['roundcube']['service']['use_ec_certificate'] = false
