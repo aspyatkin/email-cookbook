@@ -136,7 +136,7 @@
 #  FROM users WHERE userid = '%u'
 
 # Query to get a list of all usernames.
-#iterate_query = SELECT username AS user FROM users
+iterate_query = SELECT username AS user FROM mailbox
 
 driver = pgsql
 connect = host=<%= @db_host %> port=<%= @db_port %> dbname=<%= @db_name %> user=<%= @db_user %> password=<%= @db_password %>
