@@ -1,5 +1,12 @@
 id = 'email'
 
+default[id]['dns_forward_servers'] = %w(
+  8.8.8.8
+  8.8.4.4
+  208.67.222.222
+  208.67.220.220
+)
+
 default[id]['postgres']['version'] = '9.5'
 default[id]['postgres']['host'] = '127.0.0.1'
 default[id]['postgres']['port'] = 5432
