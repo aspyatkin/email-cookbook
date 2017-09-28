@@ -328,7 +328,9 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/90-sieve.conf" do
   group node[id]['dovecot']['config']['group']
   variables(
     sieve_global_dir: sieve_global_dir,
-    sieve_private_dir: sieve_private_dir
+    sieve_private_dir: sieve_private_dir,
+    sieve_max_actions: node[id]['dovecot']['config']['sieve']['max_actions'],
+    sieve_max_redirects: node[id]['dovecot']['config']['sieve']['max_redirects']
   )
   action :create
   notifies :reload, 'service[dovecot]', :delayed

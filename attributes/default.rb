@@ -59,6 +59,8 @@ default[id]['dovecot']['config']['root'] = '/etc/dovecot'
 default[id]['dovecot']['config']['owner'] = 'root'
 default[id]['dovecot']['config']['group'] = 'root'
 default[id]['dovecot']['config']['db_file'] = 'users'
+default[id]['dovecot']['config']['sieve']['max_actions'] = 32
+default[id]['dovecot']['config']['sieve']['max_redirects'] = 4
 
 default[id]['dovecot']['database']['user'] = 'dovecot'
 

@@ -2,7 +2,7 @@ name 'email'
 maintainer 'Alexander Pyatkin'
 maintainer_email 'aspyatkin@gmail.com'
 license 'MIT'
-version '1.4.4'
+version '1.4.5'
 description 'Installs and configures email server'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
