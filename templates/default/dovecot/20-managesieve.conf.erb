@@ -13,11 +13,10 @@ service managesieve-login {
   #process_count = 1024
 #}
 
-mail_plugins = virtual
 protocol sieve {
   #managesieve_max_line_length = 65536
   #mail_max_userip_connections = 10
-  #mail_plugins = virtual
+  mail_plugins = $mail_plugins virtual
   # MANAGESIEVE logout format string:
   #  %i - total number of bytes read from client
   #  %o - total number of bytes sent to client
