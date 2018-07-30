@@ -159,6 +159,8 @@ if node[id]['postfixadmin']['service']['use_ec_certificate']
   tls_ec_item = ::ChefCookbook::TLS.new(node).ec_certificate_entry(node[id]['admin_fqdn'])
 end
 
+has_scts = tls_rsa_item.has_scts? && (tls_ec_item.nil? ? true : tls_ec_item.has_scts?)
+
 nginx_conf_variables = {
   name: 'postfixadmin',
   server_name: node[id]['admin_fqdn'],
@@ -173,7 +175,7 @@ nginx_conf_variables = {
   hsts: true,
   hsts_max_age: node[id]['postfixadmin']['service']['hsts_max_age'],
   oscp_stapling: false,
-  scts: false,
+  scts: has_scts,
   hpkp: false,
   fastcgi_pass: fastcgi_pass,
   disable_setup_page: node[id]['postfixadmin']['service']['disable_setup_page']
@@ -182,7 +184,6 @@ nginx_conf_variables = {
 if node.chef_environment.start_with?('staging', 'production')
   nginx_conf_variables.merge!(
     oscp_stapling: true,
-    scts: true,
     scts_rsa_directory: tls_rsa_item.scts_dir,
     scts_ec_directory: tls_ec_item.nil? ? nil : tls_ec_item.scts_dir,
     hpkp: true,

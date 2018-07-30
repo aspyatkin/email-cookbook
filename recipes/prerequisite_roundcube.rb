@@ -148,6 +148,8 @@ if node[id]['roundcube']['service']['use_ec_certificate']
   tls_ec_item = ChefCookbook::TLS.new(node).ec_certificate_entry(node[id]['webmail_fqdn'])
 end
 
+has_scts = tls_rsa_item.has_scts? && (tls_ec_item.nil? ? true : tls_ec_item.has_scts?)
+
 nginx_conf_variables = {
   name: 'roundcube',
   server_name: node[id]['webmail_fqdn'],
@@ -162,7 +164,7 @@ nginx_conf_variables = {
   hsts: true,
   hsts_max_age: node[id]['roundcube']['service']['hsts_max_age'],
   oscp_stapling: false,
-  scts: false,
+  scts: has_scts,
   hpkp: false,
   fastcgi_pass: fastcgi_pass,
   enable_installer: node[id]['roundcube']['service']['enable_installer']
@@ -171,7 +173,6 @@ nginx_conf_variables = {
 if node.chef_environment.start_with?('staging', 'production')
   nginx_conf_variables.merge!(
     oscp_stapling: true,
-    scts: true,
     scts_rsa_directory: tls_rsa_item.scts_dir,
     scts_ec_directory: tls_ec_item.nil? ? nil : tls_ec_item.scts_dir,
     hpkp: true,
