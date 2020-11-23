@@ -133,22 +133,34 @@ end
 
 fastcgi_pass = "unix:#{node[id]['roundcube']['service']['listen_sock']}"
 
+tls_vlt_provider = lambda { nil }
+
+unless node[id]['vlt_tls_prefix'].nil?
+  tls_vlt = ::Vlt::Client.new(::Vlt.file_auth_provider, node[id]['vlt_tls_prefix'])
+  tls_vlt_provider = lambda { tls_vlt }
+end
+
+tls = ::ChefCookbook::TLS.new(node, vlt_provider: tls_vlt_provider, vlt_format: node[id]['vlt_format'])
+
 tls_rsa_certificate node[id]['webmail_fqdn'] do
+  vlt_provider tls_vlt_provider
+  vlt_format node[id]['vlt_format']
   action :deploy
 end
 
-tls_rsa_item = ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['webmail_fqdn'])
-tls_ec_item = nil
+certificate_entries = [
+  tls.rsa_certificate_entry(node[id]['webmail_fqdn'])
+]
 
-if node[id]['roundcube']['service']['use_ec_certificate']
+if tls.has_ec_certificate?(node[id]['webmail_fqdn'])
   tls_ec_certificate node[id]['webmail_fqdn'] do
+    vlt_provider tls_vlt_provider
+    vlt_format node[id]['vlt_format']
     action :deploy
   end
 
-  tls_ec_item = ChefCookbook::TLS.new(node).ec_certificate_entry(node[id]['webmail_fqdn'])
+  certificate_entries << tls.ec_certificate_entry(node[id]['webmail_fqdn'])
 end
-
-has_scts = tls_rsa_item.has_scts? && (tls_ec_item.nil? ? true : tls_ec_item.has_scts?)
 
 nginx_conf_variables = {
   name: 'roundcube',
@@ -156,32 +168,13 @@ nginx_conf_variables = {
   docroot: "#{node['ark']['prefix_root']}/roundcube",
   insecure_port: 80,
   secure_port: 443,
-  ssl_rsa_certificate: tls_rsa_item.certificate_path,
-  ssl_rsa_certificate_key: tls_rsa_item.certificate_private_key_path,
-  ssl_ec_certificate: tls_ec_item.nil? ? nil : tls_ec_item.certificate_path,
-  ssl_ec_certificate_key: \
-    tls_ec_item.nil? ? nil : tls_ec_item.certificate_private_key_path,
+  certificate_entries: certificate_entries,
   hsts: true,
   hsts_max_age: node[id]['roundcube']['service']['hsts_max_age'],
-  oscp_stapling: false,
-  scts: has_scts,
-  hpkp: false,
+  oscp_stapling: true,
   fastcgi_pass: fastcgi_pass,
   enable_installer: node[id]['roundcube']['service']['enable_installer']
 }
-
-if node.chef_environment.start_with?('staging', 'production')
-  nginx_conf_variables.merge!(
-    oscp_stapling: true,
-    scts_rsa_directory: tls_rsa_item.scts_dir,
-    scts_ec_directory: tls_ec_item.nil? ? nil : tls_ec_item.scts_dir,
-    hpkp: true,
-    hpkp_pins: (
-      tls_rsa_item.hpkp_pins + (tls_ec_item.nil? ? [] : tls_ec_item.hpkp_pins)
-    ).uniq,
-    hpkp_max_age: node[id]['roundcube']['service']['hpkp_max_age']
-  )
-end
 
 nginx_site 'roundcube' do
   template 'roundcube/nginx.conf.erb'

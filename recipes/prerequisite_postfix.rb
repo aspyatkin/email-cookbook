@@ -214,11 +214,20 @@ execute "openssl gendh -out #{dh_1024_path} -2 1024" do
   action :run
 end
 
-tls_certificate node[id]['hostname'] do
-  action :deploy
+tls_vlt_provider = lambda { nil }
+
+unless node[id]['vlt_tls_prefix'].nil?
+  tls_vlt = ::Vlt::Client.new(::Vlt.file_auth_provider, node[id]['vlt_tls_prefix'])
+  tls_vlt_provider = lambda { tls_vlt }
 end
 
-tls_item = ::ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['hostname'])
+tls = ::ChefCookbook::TLS.new(node, vlt_provider: tls_vlt_provider, vlt_format: node[id]['vlt_format'])
+
+tls_rsa_certificate node[id]['hostname'] do
+  vlt_provider tls_vlt_provider
+  vlt_format node[id]['vlt_format']
+  action :deploy
+end
 
 template "#{node[id]['postfix']['config']['root']}/main.cf" do
   source 'postfix/main.cf.erb'
@@ -228,8 +237,7 @@ template "#{node[id]['postfix']['config']['root']}/main.cf" do
   variables(
     hostname: node[id]['hostname'],
     domain: node[id]['domain'],
-    smtpd_tls_cert_file: tls_item.certificate_path,
-    smtpd_tls_key_file: tls_item.certificate_private_key_path,
+    ssl_entry: tls.rsa_certificate_entry(node[id]['hostname']),
     opendkim_host: node[id]['opendkim']['service']['host'],
     opendkim_port: node[id]['opendkim']['service']['port'],
     virtual_domains_maps_file: db_virtual_domains_maps_file,

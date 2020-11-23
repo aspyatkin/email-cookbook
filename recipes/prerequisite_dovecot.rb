@@ -19,10 +19,6 @@ service 'dovecot' do
   action [:enable, :start]
 end
 
-tls_certificate node[id]['hostname'] do
-  action :deploy
-end
-
 helper = ChefCookbook::Email.new node
 
 postgresql_database_user 'Create Dovecot database user' do
@@ -200,7 +196,20 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-master.conf" do
   notifies :reload, 'service[dovecot]', :delayed
 end
 
-tls_item = ::ChefCookbook::TLS.new(node).rsa_certificate_entry(node[id]['hostname'])
+tls_vlt_provider = lambda { nil }
+
+unless node[id]['vlt_tls_prefix'].nil?
+  tls_vlt = ::Vlt::Client.new(::Vlt.file_auth_provider, node[id]['vlt_tls_prefix'])
+  tls_vlt_provider = lambda { tls_vlt }
+end
+
+tls = ::ChefCookbook::TLS.new(node, vlt_provider: tls_vlt_provider, vlt_format: node[id]['vlt_format'])
+
+tls_rsa_certificate node[id]['hostname'] do
+  vlt_provider tls_vlt_provider
+  vlt_format node[id]['vlt_format']
+  action :deploy
+end
 
 template "#{node[id]['dovecot']['config']['root']}/conf.d/10-ssl.conf" do
   source 'dovecot/10-ssl.conf.erb'
@@ -208,8 +217,7 @@ template "#{node[id]['dovecot']['config']['root']}/conf.d/10-ssl.conf" do
   owner node[id]['dovecot']['config']['owner']
   group node[id]['dovecot']['config']['group']
   variables(
-    ssl_cert: tls_item.certificate_path,
-    ssl_key: tls_item.certificate_private_key_path
+    ssl_entry: tls.rsa_certificate_entry(node[id]['hostname'])
   )
   action :create
   notifies :reload, 'service[dovecot]', :delayed

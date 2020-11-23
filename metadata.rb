@@ -2,7 +2,7 @@ name 'email'
 maintainer 'Alexander Pyatkin'
 maintainer_email 'aspyatkin@gmail.com'
 license 'MIT'
-version '1.5.1'
+version '1.6.0'
 description 'Installs and configures email server'
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 
@@ -15,9 +15,11 @@ depends 'ark', '>= 3.1.0'
 depends 'composer', '~> 2.2.0'
 
 depends 'nginx'
-depends 'tls', '~> 3.0.2'
+depends 'tls', '~> 4.1'
 depends 'poise-python', '>= 1.6.0'
 
 depends 'localdns', '~> 1.1.0'
 
 supports 'ubuntu'
+
+depends 'vlt', '~> 0.2'

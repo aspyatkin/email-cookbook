@@ -13,22 +13,9 @@ server {
 
   charset utf-8;
 
-  <% if @scts %>
-  ssl_ct on;
-  <% end %>
-
-  ssl_certificate <%= @ssl_rsa_certificate %>;
-  ssl_certificate_key <%= @ssl_rsa_certificate_key %>;
-  <% if @scts %>
-  ssl_ct_static_scts <%= @scts_rsa_directory %>;
-  <% end %>
-
-  <% if !@ssl_ec_certificate.nil? && !@ssl_ec_certificate_key.nil? && !@scts_ec_directory.nil? %>
-  ssl_certificate <%= @ssl_ec_certificate %>;
-  ssl_certificate_key <%= @ssl_ec_certificate_key %>;
-  <% if @scts %>
-  ssl_ct_static_scts <%= @scts_ec_directory %>;
-  <% end %>
+  <% @certificate_entries.each do |item| %>
+  ssl_certificate <%= item.certificate_path %>; # CRC32: <%= item.certificate_checksum %>
+  ssl_certificate_key <%= item.certificate_private_key_path %>; # CRC32: <%= item.certificate_private_key_checksum %>
   <% end %>
 
   <% if @hsts %>
@@ -42,10 +29,6 @@ server {
   ssl_stapling_verify on;
   resolver 8.8.8.8 8.8.4.4 valid=300s;
   resolver_timeout 5s;
-  <% end %>
-
-  <% if @hpkp && @hpkp_pins.size > 0 %>
-  add_header Public-Key-Pins '<%= @hpkp_pins.map{ |pin| "pin-sha256=\"#{pin}\"" }.join '; ' %>; max-age=<%= @hpkp_max_age %>;' always;
   <% end %>
 
   access_log <%= node['nginx']['log_dir'] %>/<%= @name %>-access.log combined;
