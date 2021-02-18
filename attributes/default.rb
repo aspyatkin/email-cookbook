@@ -57,6 +57,8 @@ default[id]['postfix']['service']['group'] = 'postfix'
 
 default[id]['postfix']['database']['user'] = 'postfix'
 
+default[id]['postfix']['message_size_limit'] = 50 * 1024 * 1024
+
 default[id]['dovecot']['config']['root'] = '/etc/dovecot'
 default[id]['dovecot']['config']['owner'] = 'root'
 default[id]['dovecot']['config']['group'] = 'root'
